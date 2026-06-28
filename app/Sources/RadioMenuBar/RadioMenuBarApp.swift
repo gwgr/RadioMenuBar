@@ -409,6 +409,9 @@ struct RadioMenuBarApp: App {
                             }
                             Text(station.name)
                             Spacer()
+                            Text("⌘\(index + 1)")
+                                .font(.caption)
+                                .foregroundStyle(.tertiary)
                         }
                     }
                     .keyboardShortcut(KeyEquivalent(Character("\(index + 1)")))
@@ -473,6 +476,9 @@ struct RadioMenuBarApp: App {
                             .frame(width: 22)
                         Text("Reload Stations")
                         Spacer()
+                        Text("⌘R")
+                            .font(.caption)
+                            .foregroundStyle(.tertiary)
                     }
                 }
                 .keyboardShortcut("r")
