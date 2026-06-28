@@ -1,0 +1,18 @@
+[
+  {
+    "name": "Triple M Melbourne 105.1",
+    "url": "https://sa47.scastream.com.au/live/3mmm_128.stream/playlist.m3u8?dist=listnr-web"
+  },
+  {
+    "name": "The Fox Melbourne",
+    "url": "https://sa46.scastream.com.au/live/3fox_128.stream/playlist.m3u8?dist=listnr-web"
+  },
+  {
+    "name": "triple j",
+    "url": "https://streaming.abc-cdn.net.au/audio/hls/triplejnsw.m3u8"
+  },
+  {
+    "name": "Triple R 102.7FM",
+    "url": "https://realtime.rrr.org.au/p1h"
+  }
+]
