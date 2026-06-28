@@ -410,7 +410,6 @@ struct RadioMenuBarApp: App {
                             Text(station.name)
                             Spacer()
                             Text("⌘\(index + 1)")
-                                .font(.caption)
                                 .foregroundStyle(.tertiary)
                         }
                     }
@@ -475,7 +474,6 @@ struct RadioMenuBarApp: App {
                         Text("Reload Stations")
                         Spacer()
                         Text("⌘⇧,")
-                            .font(.caption)
                             .foregroundStyle(.tertiary)
                     }
                 }
@@ -489,7 +487,6 @@ struct RadioMenuBarApp: App {
                         Text("Open Stations Config")
                         Spacer()
                         Text("⌘,")
-                            .font(.caption)
                             .foregroundStyle(.tertiary)
                     }
                 }
@@ -511,7 +508,6 @@ struct RadioMenuBarApp: App {
                         Text("Quit")
                         Spacer()
                         Text("⌘Q")
-                            .font(.caption)
                             .foregroundStyle(.tertiary)
                     }
                 }
