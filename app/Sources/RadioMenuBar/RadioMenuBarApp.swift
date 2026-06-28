@@ -472,28 +472,28 @@ struct RadioMenuBarApp: App {
                     player.reloadStations()
                 } label: {
                     HStack(spacing: 10) {
-                        Color.clear
-                            .frame(width: 22)
                         Text("Reload Stations")
                         Spacer()
-                        Text("⌘R")
+                        Text("⌘⇧,")
                             .font(.caption)
                             .foregroundStyle(.tertiary)
                     }
                 }
-                .keyboardShortcut("r")
+                .keyboardShortcut(KeyEquivalent(","), modifiers: [.command, .shift])
                 .contentShape(Rectangle())
 
                 Button {
                     player.openStationsConfig()
                 } label: {
                     HStack(spacing: 10) {
-                        Color.clear
-                            .frame(width: 22)
                         Text("Open Stations Config")
                         Spacer()
+                        Text("⌘,")
+                            .font(.caption)
+                            .foregroundStyle(.tertiary)
                     }
                 }
+                .keyboardShortcut(KeyEquivalent(","))
                 .contentShape(Rectangle())
 
                 if let configMessage = player.configMessage {
