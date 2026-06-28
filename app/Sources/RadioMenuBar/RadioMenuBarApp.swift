@@ -395,7 +395,7 @@ struct RadioMenuBarApp: App {
                     Divider()
                 }
 
-                ForEach(player.stations) { station in
+                ForEach(Array(player.stations.enumerated()), id: \.element.id) { index, station in
                     Button {
                         player.play(station)
                     } label: {
@@ -411,6 +411,7 @@ struct RadioMenuBarApp: App {
                             Spacer()
                         }
                     }
+                    .keyboardShortcut(KeyEquivalent(Character("\(index + 1)")))
                     .contentShape(Rectangle())
                 }
 
@@ -474,6 +475,7 @@ struct RadioMenuBarApp: App {
                         Spacer()
                     }
                 }
+                .keyboardShortcut("r")
                 .contentShape(Rectangle())
 
                 Button {
@@ -507,6 +509,7 @@ struct RadioMenuBarApp: App {
         } label: {
             HStack(spacing: 4) {
                 Image(systemName: player.isPlaying ? "radio.fill" : "radio")
+                    .renderingMode(.template)
                 if let station = player.currentStation, player.showStationName {
                     Text(station.name)
                 }
