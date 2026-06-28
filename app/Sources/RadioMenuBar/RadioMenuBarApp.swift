@@ -26,9 +26,11 @@ final class PlayerController: ObservableObject {
     @Published private(set) var volume: Float
     @Published var errorMessage: String?
     @Published var configMessage: String?
+    @Published var showStationName: Bool
 
     private static let lastStationURLKey = "LastStationURL"
     private static let volumeKey = "Volume"
+    fileprivate static let showStationNameKey = "ShowStationName"
 
     private var player: AVPlayer?
     private var playerItemStatusObservation: NSKeyValueObservation?
@@ -39,6 +41,7 @@ final class PlayerController: ObservableObject {
 
     init() {
         volume = UserDefaults.standard.object(forKey: Self.volumeKey) as? Float ?? 0.8
+        showStationName = UserDefaults.standard.object(forKey: Self.showStationNameKey) as? Bool ?? true
         reloadStations(selectLastStation: true)
         configureRemoteCommands()
     }
@@ -414,6 +417,24 @@ struct RadioMenuBarApp: App {
                 Divider()
 
                 Button {
+                    player.showStationName.toggle()
+                    UserDefaults.standard.set(player.showStationName, forKey: PlayerController.showStationNameKey)
+                } label: {
+                    HStack(spacing: 10) {
+                        if player.showStationName {
+                            Image(systemName: "checkmark")
+                                .frame(width: 22)
+                        } else {
+                            Color.clear
+                                .frame(width: 22)
+                        }
+                        Text("Display Radio Station")
+                        Spacer()
+                    }
+                }
+                .contentShape(Rectangle())
+
+                Button {
                     launchAtLogin.setEnabled(!launchAtLogin.isEnabled)
                 } label: {
                     HStack(spacing: 10) {
@@ -486,7 +507,7 @@ struct RadioMenuBarApp: App {
         } label: {
             HStack(spacing: 4) {
                 Image(systemName: player.isPlaying ? "radio.fill" : "radio")
-                if let station = player.currentStation {
+                if let station = player.currentStation, player.showStationName {
                     Text(station.name)
                 }
             }
