@@ -342,6 +342,30 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 }
 
+struct MenuHover: ViewModifier {
+    @State private var isHovering = false
+
+    func body(content: Content) -> some View {
+        content
+            .padding(.vertical, 3)
+            .padding(.horizontal, 6)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background {
+                if isHovering {
+                    RoundedRectangle(cornerRadius: 5)
+                        .fill(Color(.selectedContentBackgroundColor).opacity(0.4))
+                }
+            }
+            .onHover { isHovering = $0 }
+    }
+}
+
+extension View {
+    func menuHover() -> some View {
+        modifier(MenuHover())
+    }
+}
+
 @main
 struct RadioMenuBarApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
@@ -412,9 +436,9 @@ struct RadioMenuBarApp: App {
                             Text("⌘\(index + 1)")
                                 .foregroundStyle(.tertiary)
                         }
+                        .menuHover()
                     }
                     .keyboardShortcut(KeyEquivalent(Character("\(index + 1)")))
-                    .contentShape(Rectangle())
                 }
 
                 Divider()
@@ -434,8 +458,8 @@ struct RadioMenuBarApp: App {
                         Text("Display Radio Station")
                         Spacer()
                     }
+                    .menuHover()
                 }
-                .contentShape(Rectangle())
 
                 Button {
                     launchAtLogin.setEnabled(!launchAtLogin.isEnabled)
@@ -451,9 +475,9 @@ struct RadioMenuBarApp: App {
                         Text("Launch at Login")
                         Spacer()
                     }
+                    .menuHover()
                 }
                 .disabled(!launchAtLogin.isAvailable)
-                .contentShape(Rectangle())
 
                 if let errorMessage = launchAtLogin.errorMessage {
                     Text(errorMessage)
@@ -476,9 +500,9 @@ struct RadioMenuBarApp: App {
                         Text("⌘⇧,")
                             .foregroundStyle(.tertiary)
                     }
+                    .menuHover()
                 }
                 .keyboardShortcut(KeyEquivalent(","), modifiers: [.command, .shift])
-                .contentShape(Rectangle())
 
                 Button {
                     player.openStationsConfig()
@@ -489,9 +513,9 @@ struct RadioMenuBarApp: App {
                         Text("⌘,")
                             .foregroundStyle(.tertiary)
                     }
+                    .menuHover()
                 }
                 .keyboardShortcut(KeyEquivalent(","))
-                .contentShape(Rectangle())
 
                 if let configMessage = player.configMessage {
                     Text(configMessage)
@@ -510,6 +534,7 @@ struct RadioMenuBarApp: App {
                         Text("⌘Q")
                             .foregroundStyle(.tertiary)
                     }
+                    .menuHover()
                 }
                 .keyboardShortcut("q")
             }
