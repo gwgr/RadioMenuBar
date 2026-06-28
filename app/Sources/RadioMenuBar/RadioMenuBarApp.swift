@@ -514,7 +514,6 @@ struct RadioMenuBarApp: App {
                             .font(.caption)
                             .foregroundStyle(.tertiary)
                     }
-                    .padding(.leading, 22)
                 }
                 .keyboardShortcut("q")
             }
@@ -524,7 +523,6 @@ struct RadioMenuBarApp: App {
         } label: {
             HStack(spacing: 4) {
                 Image(systemName: player.isPlaying ? "radio.fill" : "radio")
-                    .renderingMode(.template)
                 if let station = player.currentStation, player.showStationName {
                     Text(station.name)
                 }
