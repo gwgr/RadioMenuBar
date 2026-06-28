@@ -508,14 +508,13 @@ struct RadioMenuBarApp: App {
                     NSApp.terminate(nil)
                 } label: {
                     HStack(spacing: 10) {
-                        Color.clear
-                            .frame(width: 22)
                         Text("Quit")
                         Spacer()
                         Text("⌘Q")
                             .font(.caption)
                             .foregroundStyle(.tertiary)
                     }
+                    .padding(.leading, 22)
                 }
                 .keyboardShortcut("q")
             }
