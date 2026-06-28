@@ -2,6 +2,8 @@
 
 Minimal macOS menu bar app for live radio streams.
 
+![Screenshot](screenshot.png)
+
 ## Build App
 
 From the repository root:
