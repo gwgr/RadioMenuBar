@@ -366,6 +366,25 @@ extension View {
     }
 }
 
+struct OptionalKeyboardShortcut: ViewModifier {
+    let key: KeyEquivalent?
+
+    @ViewBuilder
+    func body(content: Content) -> some View {
+        if let key {
+            content.keyboardShortcut(key)
+        } else {
+            content
+        }
+    }
+}
+
+extension View {
+    func optionalKeyboardShortcut(_ key: KeyEquivalent?) -> some View {
+        modifier(OptionalKeyboardShortcut(key: key))
+    }
+}
+
 @main
 struct RadioMenuBarApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
@@ -420,6 +439,8 @@ struct RadioMenuBarApp: App {
                 }
 
                 ForEach(Array(player.stations.enumerated()), id: \.element.id) { index, station in
+                    let shortcut = index < 9 ? KeyEquivalent(Character("\(index + 1)")) : nil
+
                     Button {
                         player.play(station)
                     } label: {
@@ -433,12 +454,14 @@ struct RadioMenuBarApp: App {
                             }
                             Text(station.name)
                             Spacer()
-                            Text("⌘\(index + 1)")
-                                .foregroundStyle(.tertiary)
+                            if index < 9 {
+                                Text("⌘\(index + 1)")
+                                    .foregroundStyle(.tertiary)
+                            }
                         }
                         .menuHover()
                     }
-                    .keyboardShortcut(KeyEquivalent(Character("\(index + 1)")))
+                    .optionalKeyboardShortcut(shortcut)
                 }
 
                 Divider()
