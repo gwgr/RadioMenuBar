@@ -12,12 +12,6 @@ enum PlaybackState: String {
     case failed = "Failed"
 }
 
-struct StationLoadResult {
-    let stations: [Station]
-    let configURL: URL?
-    let warningMessage: String?
-}
-
 @MainActor
 final class PlayerController: ObservableObject {
     @Published private(set) var stations: [Station] = []
@@ -84,7 +78,7 @@ final class PlayerController: ObservableObject {
 
     func reloadStations(selectLastStation: Bool = false) {
         let previousStation = currentStation
-        let result = Self.loadStations()
+        let result = StationLoader().loadStations()
         stations = result.stations
         configURL = result.configURL
         configMessage = "Reloaded \(stations.count) stations"
@@ -200,101 +194,5 @@ final class PlayerController: ObservableObject {
             MPNowPlayingInfoPropertyIsLiveStream: true,
             MPNowPlayingInfoPropertyPlaybackRate: playbackRate
         ]
-    }
-
-    private static func loadStations() -> StationLoadResult {
-        let appSupportURL = applicationSupportConfigURL()
-        ensureEditableConfig(at: appSupportURL)
-
-        let workingDirectory = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
-        let configURLs = [
-            appSupportURL,
-            workingDirectory.appendingPathComponent("stations.json"),
-            workingDirectory.appendingPathComponent("app/stations.json"),
-            Bundle.main.resourceURL?.appendingPathComponent("stations.json")
-        ]
-        .compactMap { $0 }
-
-        var warningMessage: String?
-        var editableConfigURL: URL?
-
-        for configURL in configURLs where FileManager.default.fileExists(atPath: configURL.path) {
-            if editableConfigURL == nil {
-                editableConfigURL = configURL
-            }
-
-            do {
-                let data = try Data(contentsOf: configURL)
-                let stations = try JSONDecoder().decode([Station].self, from: data)
-                return StationLoadResult(
-                    stations: stations,
-                    configURL: editableConfigURL ?? configURL,
-                    warningMessage: warningMessage
-                )
-            } catch {
-                warningMessage = warningMessage ?? "Could not load \(displayPath(for: configURL)): \(error.localizedDescription)"
-            }
-        }
-
-        return StationLoadResult(
-            stations: defaultStations,
-            configURL: editableConfigURL,
-            warningMessage: warningMessage.map { "\($0). Using default station." }
-        )
-    }
-
-    private static var defaultStations: [Station] {
-        [
-            Station(
-                name: "Triple M Melbourne 105.1",
-                url: URL(string: "https://sa47.scastream.com.au/live/3mmm_128.stream/playlist.m3u8?dist=listnr-web")!
-            )
-        ]
-    }
-
-    private static func applicationSupportConfigURL() -> URL {
-        let baseURL = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-        return baseURL
-            .appendingPathComponent("RadioMenuBar", isDirectory: true)
-            .appendingPathComponent("stations.json")
-    }
-
-    private static func ensureEditableConfig(at configURL: URL) {
-        guard !FileManager.default.fileExists(atPath: configURL.path) else { return }
-
-        let sourceURLs = [
-            Bundle.main.resourceURL?.appendingPathComponent("stations.json"),
-            URL(fileURLWithPath: FileManager.default.currentDirectoryPath).appendingPathComponent("app/stations.json"),
-            URL(fileURLWithPath: FileManager.default.currentDirectoryPath).appendingPathComponent("stations.json")
-        ]
-        .compactMap { $0 }
-
-        do {
-            try FileManager.default.createDirectory(
-                at: configURL.deletingLastPathComponent(),
-                withIntermediateDirectories: true
-            )
-
-            if let sourceURL = sourceURLs.first(where: { FileManager.default.fileExists(atPath: $0.path) }) {
-                try FileManager.default.copyItem(at: sourceURL, to: configURL)
-            }
-        } catch {
-            // Falling back to bundled/dev config is fine if Application Support cannot be written.
-        }
-    }
-
-    private static func displayPath(for url: URL) -> String {
-        let homePath = FileManager.default.homeDirectoryForCurrentUser.path
-        let path = url.path
-
-        if path == homePath {
-            return "~"
-        }
-
-        if path.hasPrefix(homePath + "/") {
-            return "~/" + path.dropFirst(homePath.count + 1)
-        }
-
-        return path
     }
 }

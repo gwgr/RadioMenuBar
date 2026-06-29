@@ -1,5 +1,60 @@
 import SwiftUI
 
+struct MenuRow: View {
+    let title: String
+    var systemImage: String?
+    var reservesImageSpace = false
+    var shortcutHint: String?
+
+    var body: some View {
+        HStack(spacing: 10) {
+            if reservesImageSpace {
+                if let systemImage {
+                    Image(systemName: systemImage)
+                        .frame(width: 22)
+                } else {
+                    Color.clear
+                        .frame(width: 22)
+                }
+            }
+
+            Text(title)
+            Spacer()
+
+            if let shortcutHint {
+                Text(shortcutHint)
+                    .foregroundStyle(.tertiary)
+            }
+        }
+        .menuHover()
+    }
+}
+
+struct SelectableMenuRow: View {
+    let title: String
+    let isSelected: Bool
+    var selectedSystemImage = "checkmark"
+    var shortcutHint: String?
+
+    var body: some View {
+        MenuRow(
+            title: title,
+            systemImage: isSelected ? selectedSystemImage : nil,
+            reservesImageSpace: true,
+            shortcutHint: shortcutHint
+        )
+    }
+}
+
+struct CommandMenuRow: View {
+    let title: String
+    var shortcutHint: String?
+
+    var body: some View {
+        MenuRow(title: title, shortcutHint: shortcutHint)
+    }
+}
+
 struct MenuHover: ViewModifier {
     @State private var isHovering = false
 

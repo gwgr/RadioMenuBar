@@ -1,6 +1,6 @@
 # RadioMenuBar
 
-Minimal macOS menu bar app for live radio streams.
+Minimal macOS menu bar app for live radio streams, with a custom app icon and editable station list.
 
 ![Screenshot](screenshot.png)
 
@@ -41,6 +41,7 @@ When running from source, it also falls back to `stations.json` in the current w
 
 - Menu bar station picker
 - Play, stop, and active-station indicator
+- Optional station-name display in the menu bar
 - Persisted last selected station
 - Persisted volume control
 - Loading, playing, stopped, and failed states
@@ -48,14 +49,28 @@ When running from source, it also falls back to `stations.json` in the current w
 - Media play/pause/stop command support
 - Reloadable `stations.json`
 - Menu item to open the station config
+- Visible config load warnings in the menu
+- Keyboard shortcuts for stations 1-9, reload, config, and quit
 - Launch at Login toggle in the built app
+
+## Default Stations
+
+The bundled `app/stations.json` currently includes:
+
+- ABC NewsRadio
+- Gold 104.3
+- The Fox Melbourne
+- Triple M Melbourne 105.1
+- triple j
+- Triple R 102.7FM
 
 ## Notes
 
 - Requires macOS 13 or newer for `MenuBarExtra`.
 - Keep `stations.json` URLs pointed at stable stream URLs.
 - Do not save generated `listeningSessionID` child playlist URLs from LISTNR streams.
-- Launch at Login writes a per-user LaunchAgent at `~/Library/LaunchAgents/app.radiomenubar.RadioMenuBar.plist`.
+- Station config warnings appear in the menu when a config cannot be loaded.
+- Launch at Login uses macOS ServiceManagement in the built app.
 
 ## Disclaimer
 

@@ -14,6 +14,10 @@ let package = Package(
         .executableTarget(
             name: "RadioMenuBar",
             path: "Sources/RadioMenuBar"
+        ),
+        .testTarget(
+            name: "RadioMenuBarTests",
+            dependencies: ["RadioMenuBar"]
         )
     ]
 )

@@ -66,22 +66,12 @@ struct RadioMenuBarApp: App {
                     Button {
                         player.play(station)
                     } label: {
-                        HStack(spacing: 10) {
-                            if station == player.currentStation {
-                                Image(systemName: player.isPlaying ? "speaker.wave.2.fill" : "checkmark")
-                                    .frame(width: 22)
-                            } else {
-                                Color.clear
-                                    .frame(width: 22)
-                            }
-                            Text(station.name)
-                            Spacer()
-                            if index < 9 {
-                                Text("⌘\(index + 1)")
-                                    .foregroundStyle(.tertiary)
-                            }
-                        }
-                        .menuHover()
+                        SelectableMenuRow(
+                            title: station.name,
+                            isSelected: station == player.currentStation,
+                            selectedSystemImage: player.isPlaying ? "speaker.wave.2.fill" : "checkmark",
+                            shortcutHint: index < 9 ? "⌘\(index + 1)" : nil
+                        )
                     }
                     .optionalKeyboardShortcut(shortcut)
                 }
@@ -91,35 +81,19 @@ struct RadioMenuBarApp: App {
                 Button {
                     player.toggleShowStationName()
                 } label: {
-                    HStack(spacing: 10) {
-                        if player.showStationName {
-                            Image(systemName: "checkmark")
-                                .frame(width: 22)
-                        } else {
-                            Color.clear
-                                .frame(width: 22)
-                        }
-                        Text("Display Radio Station")
-                        Spacer()
-                    }
-                    .menuHover()
+                    SelectableMenuRow(
+                        title: "Display Radio Station",
+                        isSelected: player.showStationName
+                    )
                 }
 
                 Button {
                     launchAtLogin.setEnabled(!launchAtLogin.isEnabled)
                 } label: {
-                    HStack(spacing: 10) {
-                        if launchAtLogin.isEnabled {
-                            Image(systemName: "checkmark")
-                                .frame(width: 22)
-                        } else {
-                            Color.clear
-                                .frame(width: 22)
-                        }
-                        Text("Launch at Login")
-                        Spacer()
-                    }
-                    .menuHover()
+                    SelectableMenuRow(
+                        title: "Launch at Login",
+                        isSelected: launchAtLogin.isEnabled
+                    )
                 }
                 .disabled(!launchAtLogin.isAvailable)
 
@@ -127,6 +101,10 @@ struct RadioMenuBarApp: App {
                     Text(errorMessage)
                         .font(.caption)
                         .foregroundStyle(.red)
+                } else if let statusMessage = launchAtLogin.statusMessage {
+                    Text(statusMessage)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
                 } else if !launchAtLogin.isAvailable {
                     Text("Available in the built app")
                         .font(.caption)
@@ -138,26 +116,14 @@ struct RadioMenuBarApp: App {
                 Button {
                     player.reloadStations()
                 } label: {
-                    HStack(spacing: 10) {
-                        Text("Reload Stations")
-                        Spacer()
-                        Text("⌘⇧,")
-                            .foregroundStyle(.tertiary)
-                    }
-                    .menuHover()
+                    CommandMenuRow(title: "Reload Stations", shortcutHint: "⌘⇧,")
                 }
                 .keyboardShortcut(KeyEquivalent(","), modifiers: [.command, .shift])
 
                 Button {
                     player.openStationsConfig()
                 } label: {
-                    HStack(spacing: 10) {
-                        Text("Open Stations Config")
-                        Spacer()
-                        Text("⌘,")
-                            .foregroundStyle(.tertiary)
-                    }
-                    .menuHover()
+                    CommandMenuRow(title: "Open Stations Config", shortcutHint: "⌘,")
                 }
                 .keyboardShortcut(KeyEquivalent(","))
 
@@ -178,13 +144,7 @@ struct RadioMenuBarApp: App {
                 Button {
                     NSApp.terminate(nil)
                 } label: {
-                    HStack(spacing: 10) {
-                        Text("Quit")
-                        Spacer()
-                        Text("⌘Q")
-                            .foregroundStyle(.tertiary)
-                    }
-                    .menuHover()
+                    CommandMenuRow(title: "Quit", shortcutHint: "⌘Q")
                 }
                 .keyboardShortcut("q")
             }

@@ -1,72 +1,95 @@
 import Foundation
+import ServiceManagement
 import SwiftUI
 
 @MainActor
 final class LaunchAtLoginController: ObservableObject {
     @Published private(set) var isEnabled: Bool
     @Published private(set) var isAvailable: Bool
+    @Published private(set) var statusMessage: String?
     @Published var errorMessage: String?
 
-    private let label = "app.radiomenubar.RadioMenuBar"
+    private let service = SMAppService.mainApp
 
     init() {
         isAvailable = Bundle.main.bundleURL.pathExtension == "app"
-        isEnabled = FileManager.default.fileExists(atPath: Self.launchAgentURL.path)
+        isEnabled = false
+        refreshStatus()
     }
 
     func setEnabled(_ enabled: Bool) {
         errorMessage = nil
+        statusMessage = nil
 
         do {
             if enabled {
-                try installLaunchAgent()
+                try enableLoginItem()
             } else {
-                try removeLaunchAgent()
+                try disableLoginItem()
             }
-            isEnabled = enabled
         } catch {
             errorMessage = error.localizedDescription
-            isEnabled = FileManager.default.fileExists(atPath: Self.launchAgentURL.path)
+        }
+
+        refreshStatus()
+    }
+
+    private func refreshStatus() {
+        guard isAvailable else {
+            isEnabled = false
+            statusMessage = nil
+            return
+        }
+
+        switch service.status {
+        case .enabled:
+            isEnabled = true
+            statusMessage = nil
+        case .requiresApproval:
+            isEnabled = true
+            statusMessage = "Allow launch at login in System Settings."
+        case .notRegistered:
+            isEnabled = Self.legacyLaunchAgentExists
+            statusMessage = isEnabled ? "Using legacy LaunchAgent. Toggle off and on to migrate." : nil
+        case .notFound:
+            isEnabled = Self.legacyLaunchAgentExists
+            statusMessage = isEnabled ? "Using legacy LaunchAgent. Toggle off and on to migrate." : nil
+        @unknown default:
+            isEnabled = Self.legacyLaunchAgentExists
+            statusMessage = nil
         }
     }
 
-    private func installLaunchAgent() throws {
-        guard isAvailable, let executableURL = Bundle.main.executableURL else {
+    private func enableLoginItem() throws {
+        guard isAvailable else {
             throw LaunchAtLoginError.appBundleRequired
         }
 
-        try FileManager.default.createDirectory(
-            at: Self.launchAgentURL.deletingLastPathComponent(),
-            withIntermediateDirectories: true
-        )
+        try removeLegacyLaunchAgent()
 
-        let plist = """
-        <?xml version="1.0" encoding="UTF-8"?>
-        <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-        <plist version="1.0">
-        <dict>
-            <key>Label</key>
-            <string>\(label)</string>
-            <key>ProgramArguments</key>
-            <array>
-                <string>\(executableURL.path)</string>
-            </array>
-            <key>RunAtLoad</key>
-            <true/>
-        </dict>
-        </plist>
-        """
-
-        try plist.write(to: Self.launchAgentURL, atomically: true, encoding: .utf8)
-    }
-
-    private func removeLaunchAgent() throws {
-        if FileManager.default.fileExists(atPath: Self.launchAgentURL.path) {
-            try FileManager.default.removeItem(at: Self.launchAgentURL)
+        if service.status != .enabled {
+            try service.register()
         }
     }
 
-    private static var launchAgentURL: URL {
+    private func disableLoginItem() throws {
+        if service.status == .enabled || service.status == .requiresApproval {
+            try service.unregister()
+        }
+
+        try removeLegacyLaunchAgent()
+    }
+
+    private func removeLegacyLaunchAgent() throws {
+        guard Self.legacyLaunchAgentExists else { return }
+        try FileManager.default.removeItem(at: Self.legacyLaunchAgentURL)
+    }
+
+    private static var legacyLaunchAgentExists: Bool {
+        FileManager.default.fileExists(atPath: legacyLaunchAgentURL.path)
+    }
+
+    private static var legacyLaunchAgentURL: URL {
         FileManager.default.homeDirectoryForCurrentUser
             .appendingPathComponent("Library/LaunchAgents/app.radiomenubar.RadioMenuBar.plist")
     }
